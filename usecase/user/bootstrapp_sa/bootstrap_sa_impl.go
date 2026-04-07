@@ -35,9 +35,10 @@ func (b *bootstrapSAImpl) Execute(input BootstrapSAInput) (*vo.Output, *shared.D
 	if domainErr != nil {
 		return nil, domainErr
 	}
-	_, err = b.gateway.Save(toSaveUser)
+	err = b.gateway.Save(toSaveUser)
 	if err != nil {
 		return nil, shared.InternalError(err)
 	}
-	return nil, nil
+	output := &vo.Output{"Super Admin successfully created"}
+	return output, nil
 }
