@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/oderapi/_test/application/user/boostrap_sa/mocks"
-	"github.com/oderapi/domain/gateway"
 	"github.com/oderapi/domain/shared"
 	"github.com/oderapi/usecase/user/bootstrapp_sa"
 )
@@ -107,7 +106,7 @@ func TestShouldReturnErrorIfEncoderFails(t *testing.T) {
 	username := "superAdmin"
 	userGateway := &mocks.UserGatewayMock{ExistsActiveSuperAdminParam: username}
 	idGenerator := &mocks.IDGeneratorMock{GenerateResult: "test-id"}
-	encodeErr := gateway.ErrEncoder
+	encodeErr := errors.New("test-error")
 	expectedError := shared.InternalError(encodeErr)
 	encodeParam := "str0ngP@ssword"
 	encoder := &mocks.EncoderGatewayMock{
