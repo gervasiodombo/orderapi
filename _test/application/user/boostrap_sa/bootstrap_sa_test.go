@@ -110,7 +110,10 @@ func TestShouldReturnErrorIfEncoderFails(t *testing.T) {
 	encodeErr := gateway.ErrEncoder
 	expectedError := shared.InternalError(encodeErr)
 	encodeParam := "str0ngP@ssword"
-	encoder := &mocks.EncoderGatewayMock{EncodeErr: encodeErr}
+	encoder := &mocks.EncoderGatewayMock{
+		EncodeParam: encodeParam,
+		EncodeErr:   encodeErr,
+	}
 
 	usecase := bootstrapp_sa.New(userGateway, idGenerator, encoder)
 	input := bootstrapp_sa.Input{
