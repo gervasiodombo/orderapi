@@ -1,7 +1,11 @@
 package gateway
 
-import "github.com/oderapi/domain/shared"
+import (
+	"errors"
+)
 
 type EncoderGateway interface {
-	encode(rawPassword string) (string, shared.DomainError)
+	Encode(rawPassword string) (string, error)
 }
+
+var ErrEncoder = errors.New("an error occurred while encoding the password")

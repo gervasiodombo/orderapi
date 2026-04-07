@@ -8,10 +8,11 @@ import (
 type bootstrapSAImpl struct {
 	idGenerator shared.IDGenerator
 	gateway     gateway.UserGateway
+	encoder     gateway.EncoderGateway
 }
 
-func New(gateway gateway.UserGateway, idGenerator shared.IDGenerator) BootstrapSA {
-	return &bootstrapSAImpl{gateway: gateway, idGenerator: idGenerator}
+func New(gateway gateway.UserGateway, idGenerator shared.IDGenerator, encoder gateway.EncoderGateway) BootstrapSA {
+	return &bootstrapSAImpl{gateway: gateway, idGenerator: idGenerator, encoder: encoder}
 }
 
 func (b *bootstrapSAImpl) Execute(input Input) (*Output, *shared.DomainError) {
@@ -21,6 +22,10 @@ func (b *bootstrapSAImpl) Execute(input Input) (*Output, *shared.DomainError) {
 	}
 	valueId := b.idGenerator.Generate()
 	_, err := shared.NewID(valueId)
+	if err != nil {
+		return nil, shared.InternalError(err)
+	}
+	_, err = b.encoder.Encode(input.Password)
 	if err != nil {
 		return nil, shared.InternalError(err)
 	}
