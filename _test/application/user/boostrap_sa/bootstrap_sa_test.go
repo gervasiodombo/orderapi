@@ -9,13 +9,51 @@ import (
 	"github.com/oderapi/usecase/user/bootstrapp_sa"
 )
 
+func TestShouldReturnErrorIfExistsVerificationFails(t *testing.T) {
+	//Arrange
+	username := "superAdmin"
+	expectedError := errors.New("verification failed")
+	userGateway := &mocks.UserGatewayMock{ExistsActiveSuperAdminErr: expectedError}
+	idGenerator := &mocks.IDGeneratorMock{}
+	encoder := &mocks.EncoderGatewayMock{}
+
+	usecase := bootstrapp_sa.New(userGateway, idGenerator, encoder)
+	input := bootstrapp_sa.BootstrapSAInput{
+		Username: username,
+		Name:     "System Admin",
+		Email:    "sa@system.com",
+		Password: "str0ngP@ssword",
+	}
+
+	//Act
+	output, err := usecase.Execute(input)
+
+	//Assert
+	if err == nil {
+		t.Errorf("should  return an error")
+	}
+
+	if output != nil {
+		t.Errorf("output should be nil")
+	}
+
+	if userGateway.ExistsActiveSuperAdminResult {
+		t.Error("ExistsActiveSuperAdmin should return false")
+	}
+
+	if !userGateway.ExistsActiveSuperAdminCalled {
+		t.Error("ExistsActiveSuperAdmin should have been called")
+	}
+
+	if err.Cause != expectedError {
+		t.Errorf("Should return error message: %v", expectedError)
+	}
+}
+
 func TestShouldReturnNilIfSuperAdminAlreadyExists(t *testing.T) {
 	//Arrange
 	username := "superAdmin"
-	userGateway := &mocks.UserGatewayMock{
-		ExistsActiveSuperAdminResult: true,
-		ExistsActiveSuperAdminParam:  username,
-	}
+	userGateway := &mocks.UserGatewayMock{ExistsActiveSuperAdminResult: true}
 	idGenerator := &mocks.IDGeneratorMock{}
 	encoder := &mocks.EncoderGatewayMock{}
 
@@ -53,7 +91,7 @@ func TestShouldReturnErrorIfIdGeneratorFails(t *testing.T) {
 	//Arrange
 	expectedError := shared.InternalError(shared.ErrEmptyID)
 	username := "superAdmin"
-	userGateway := &mocks.UserGatewayMock{ExistsActiveSuperAdminParam: username}
+	userGateway := &mocks.UserGatewayMock{}
 	idGenerator := &mocks.IDGeneratorMock{}
 	encoder := &mocks.EncoderGatewayMock{}
 	usecase := bootstrapp_sa.New(userGateway, idGenerator, encoder)
@@ -104,7 +142,7 @@ func TestShouldReturnErrorIfIdGeneratorFails(t *testing.T) {
 func TestShouldReturnErrorIfEncoderFails(t *testing.T) {
 	//Arrange
 	username := "superAdmin"
-	userGateway := &mocks.UserGatewayMock{ExistsActiveSuperAdminParam: username}
+	userGateway := &mocks.UserGatewayMock{}
 	idGenerator := &mocks.IDGeneratorMock{GenerateResult: "test-id"}
 	encodeErr := errors.New("test-error")
 	expectedError := shared.InternalError(encodeErr)
@@ -166,7 +204,7 @@ func TestShouldReturnErrorIfEncoderFails(t *testing.T) {
 func TestShouldReturnErrorIfNameEmpty(t *testing.T) {
 	//Arrange
 	username := "superAdmin"
-	userGateway := &mocks.UserGatewayMock{ExistsActiveSuperAdminParam: username}
+	userGateway := &mocks.UserGatewayMock{}
 	idGenerator := &mocks.IDGeneratorMock{GenerateResult: "test-id"}
 	encodeParam := "str0ngP@ssword"
 	encodedPassword := "encodedPassword"
@@ -221,7 +259,7 @@ func TestShouldReturnErrorIfNameEmpty(t *testing.T) {
 func TestShouldReturnErrorIfEmailEmpty(t *testing.T) {
 	//Arrange
 	username := "superAdmin"
-	userGateway := &mocks.UserGatewayMock{ExistsActiveSuperAdminParam: username}
+	userGateway := &mocks.UserGatewayMock{}
 	idGenerator := &mocks.IDGeneratorMock{GenerateResult: "test-id"}
 	encodeParam := "str0ngP@ssword"
 	encodedPassword := "encodedPassword"
@@ -276,7 +314,7 @@ func TestShouldReturnErrorIfEmailEmpty(t *testing.T) {
 func TestShouldReturnErrorIfUsernameEmpty(t *testing.T) {
 	//Arrange
 	username := ""
-	userGateway := &mocks.UserGatewayMock{ExistsActiveSuperAdminParam: username}
+	userGateway := &mocks.UserGatewayMock{}
 	idGenerator := &mocks.IDGeneratorMock{GenerateResult: "test-id"}
 	encodeParam := "str0ngP@ssword"
 	encodedPassword := "encodedPassword"
@@ -331,7 +369,7 @@ func TestShouldReturnErrorIfUsernameEmpty(t *testing.T) {
 func TestShouldReturnErrorIfPasswordIsEmpty(t *testing.T) {
 	//Arrange
 	username := ""
-	userGateway := &mocks.UserGatewayMock{ExistsActiveSuperAdminParam: username}
+	userGateway := &mocks.UserGatewayMock{}
 	idGenerator := &mocks.IDGeneratorMock{GenerateResult: "test-id"}
 	encodeParam := "str0ngP@ssword"
 	encodedPassword := "encodedPassword"
@@ -388,7 +426,7 @@ func TestShouldReturnErrorIfSaveFails(t *testing.T) {
 	username := "any_username"
 	errr := errors.New("some error")
 	expectedError := shared.InternalError(errr)
-	userGateway := &mocks.UserGatewayMock{ExistsActiveSuperAdminParam: username, SaveError: errr}
+	userGateway := &mocks.UserGatewayMock{SaveError: errr}
 	userId := "test-id"
 	idGenerator := &mocks.IDGeneratorMock{GenerateResult: userId}
 	encodeParam := "str0ngP@ssword"
@@ -455,7 +493,7 @@ func TestShouldReturnErrorIfSaveFails(t *testing.T) {
 func TestShouldSaveSa(t *testing.T) {
 	//Arrange
 	username := "any_username"
-	userGateway := &mocks.UserGatewayMock{ExistsActiveSuperAdminParam: username}
+	userGateway := &mocks.UserGatewayMock{}
 	userId := "test-id"
 	idGenerator := &mocks.IDGeneratorMock{GenerateResult: userId}
 	encodeParam := "str0ngP@ssword"

@@ -7,16 +7,15 @@ import (
 type UserGatewayMock struct {
 	ExistsActiveSuperAdminResult bool
 	ExistsActiveSuperAdminCalled bool
-	ExistsActiveSuperAdminParam  string
+	ExistsActiveSuperAdminErr    error
 	SaveParam                    user.User
 	SaveError                    error
 	SaveCalled                   bool
 }
 
-func (m *UserGatewayMock) ExistsActiveSuperAdmin(username string) bool {
+func (m *UserGatewayMock) ExistsActiveSuperAdmin() (bool, error) {
 	m.ExistsActiveSuperAdminCalled = true
-	m.ExistsActiveSuperAdminParam = username
-	return m.ExistsActiveSuperAdminResult
+	return m.ExistsActiveSuperAdminResult, m.ExistsActiveSuperAdminErr
 }
 
 func (m *UserGatewayMock) Save(user user.User) error {

@@ -8,7 +8,7 @@ import (
 
 type EncoderGateway struct{ cost int }
 
-func New() *EncoderGateway {
+func NewEncoderGateway() *EncoderGateway {
 	return &EncoderGateway{cost: bcrypt.DefaultCost}
 }
 

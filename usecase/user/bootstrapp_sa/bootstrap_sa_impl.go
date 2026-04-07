@@ -18,7 +18,10 @@ func New(gateway gateway.UserGateway, idGenerator shared.IDGenerator, encoder ga
 }
 
 func (b *bootstrapSAImpl) Execute(input BootstrapSAInput) (*vo.Output, *shared.DomainError) {
-	existing := b.gateway.ExistsActiveSuperAdmin(input.Username)
+	existing, err := b.gateway.ExistsActiveSuperAdmin()
+	if err != nil {
+		return nil, shared.InternalError(err)
+	}
 	if existing {
 		return nil, nil
 	}

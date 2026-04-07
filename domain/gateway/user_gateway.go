@@ -5,6 +5,6 @@ import (
 )
 
 type UserGateway interface {
-	ExistsActiveSuperAdmin(username string) bool
+	ExistsActiveSuperAdmin() (bool, error)
 	Save(user user.User) error
 }
