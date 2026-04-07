@@ -6,21 +6,23 @@ import (
 
 	"github.com/oderapi/_test/application/user/boostrap_sa/mocks"
 	"github.com/oderapi/application/user/bootstrapp_sa"
+	"github.com/oderapi/domain/gateway"
 	"github.com/oderapi/domain/shared"
 )
 
 func TestShouldReturnNilIfSuperAdminAlreadyExists(t *testing.T) {
 	//Arrange
-	gateway := &mocks.UserGatewayMock{
-		SaveCalled: false,
-
+	username := "superAdmin"
+	userGateway := &mocks.UserGatewayMock{
 		ExistsActiveSuperAdminResult: true,
-		ExistsActiveSuperAdminCalled: true,
+		ExistsActiveSuperAdminParam:  username,
 	}
-	idGenerator := &mocks.
-		IDGeneratorMock{Value: "test_sa_id"}
-	usecase := bootstrapp_sa.New(gateway, idGenerator)
+	idGenerator := &mocks.IDGeneratorMock{}
+	encoder := &mocks.EncoderGatewayMock{}
+
+	usecase := bootstrapp_sa.New(userGateway, idGenerator, encoder)
 	input := bootstrapp_sa.Input{
+		Username: username,
 		Name:     "System Admin",
 		Email:    "sa@system.com",
 		Password: "str0ngP@ssword",
@@ -38,31 +40,26 @@ func TestShouldReturnNilIfSuperAdminAlreadyExists(t *testing.T) {
 		t.Errorf("output should be nil")
 	}
 
-	if !gateway.ExistsActiveSuperAdminResult {
+	if !userGateway.ExistsActiveSuperAdminResult {
 		t.Error("ExistsActiveSuperAdmin should return true")
 	}
 
-	if !gateway.ExistsActiveSuperAdminCalled {
+	if !userGateway.ExistsActiveSuperAdminCalled {
 		t.Error("ExistsActiveSuperAdmin should have been called")
 	}
 
-	if gateway.SaveCalled {
-		t.Error("Save() should not have been called")
-	}
 }
 
 func TestShouldReturnErrorIfIdGeneratorFails(t *testing.T) {
 	//Arrange
 	expectedError := shared.InternalError(shared.ErrEmptyID)
-	gateway := &mocks.UserGatewayMock{
-		SaveCalled: false,
-
-		ExistsActiveSuperAdminResult: false,
-		ExistsActiveSuperAdminCalled: false,
-	}
-	idGenerator := &mocks.IDGeneratorMock{Value: ""}
-	usecase := bootstrapp_sa.New(gateway, idGenerator)
+	username := "superAdmin"
+	userGateway := &mocks.UserGatewayMock{ExistsActiveSuperAdminParam: username}
+	idGenerator := &mocks.IDGeneratorMock{}
+	encoder := &mocks.EncoderGatewayMock{}
+	usecase := bootstrapp_sa.New(userGateway, idGenerator, encoder)
 	input := bootstrapp_sa.Input{
+		Username: username,
 		Name:     "System Admin",
 		Email:    "sa@system.com",
 		Password: "str0ngP@ssword",
@@ -80,16 +77,75 @@ func TestShouldReturnErrorIfIdGeneratorFails(t *testing.T) {
 		t.Errorf("output should be nil")
 	}
 
-	if gateway.ExistsActiveSuperAdminResult {
+	if userGateway.ExistsActiveSuperAdminResult {
 		t.Error("ExistsActiveSuperAdmin should return false")
 	}
 
-	if !gateway.ExistsActiveSuperAdminCalled {
+	if !userGateway.ExistsActiveSuperAdminCalled {
 		t.Error("ExistsActiveSuperAdmin should have been called")
 	}
 
-	if gateway.SaveCalled {
-		t.Error("Save() should not have been called")
+	if !idGenerator.GenerateCalled {
+		t.Error("Generate should have been called")
+	}
+
+	if err.Code != expectedError.Code {
+		t.Errorf("Should return error code: %v", expectedError.Code)
+	}
+
+	if err.Message != expectedError.Message {
+		t.Errorf("Should return error message: %v", expectedError.Message)
+	}
+
+	if !errors.Is(err.Cause, expectedError.Cause) {
+		t.Errorf("Should return error cause: '%v'! But received : '%v'", expectedError.Cause, err.Cause)
+	}
+}
+
+func TestShouldReturnErrorIfEncoderFails(t *testing.T) {
+	//Arrange
+	username := "superAdmin"
+	userGateway := &mocks.UserGatewayMock{ExistsActiveSuperAdminParam: username}
+	idGenerator := &mocks.IDGeneratorMock{GenerateResult: "test-id"}
+	encodeErr := gateway.ErrEncoder
+	expectedError := shared.InternalError(encodeErr)
+	encodeParam := "str0ngP@ssword"
+	encoder := &mocks.EncoderGatewayMock{EncodeErr: encodeErr}
+
+	usecase := bootstrapp_sa.New(userGateway, idGenerator, encoder)
+	input := bootstrapp_sa.Input{
+		Username: username,
+		Name:     "System Admin",
+		Email:    "sa@system.com",
+		Password: encodeParam,
+	}
+
+	//Act
+	output, err := usecase.Execute(input)
+
+	//Assert
+	if err == nil {
+		t.Errorf("should  return an error")
+	}
+
+	if output != nil {
+		t.Errorf("output should be nil")
+	}
+
+	if userGateway.ExistsActiveSuperAdminResult {
+		t.Error("ExistsActiveSuperAdmin should return false")
+	}
+
+	if !userGateway.ExistsActiveSuperAdminCalled {
+		t.Error("ExistsActiveSuperAdmin should have been called")
+	}
+
+	if !idGenerator.GenerateCalled {
+		t.Error("Generate should have been called")
+	}
+
+	if !encoder.EncodeCalled {
+		t.Error("Encoder should have been called")
 	}
 
 	if err.Code != expectedError.Code {

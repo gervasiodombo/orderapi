@@ -1,9 +1,11 @@
 package mocks
 
 type IDGeneratorMock struct {
-	Value string
+	GenerateResult string
+	GenerateCalled bool
 }
 
 func (m *IDGeneratorMock) Generate() string {
-	return m.Value
+	m.GenerateCalled = true
+	return m.GenerateResult
 }
