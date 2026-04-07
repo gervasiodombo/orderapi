@@ -4,6 +4,7 @@ import (
 	"github.com/oderapi/domain/entity/user"
 	"github.com/oderapi/domain/gateway"
 	"github.com/oderapi/domain/shared"
+	"github.com/oderapi/domain/vo"
 )
 
 type bootstrapSAImpl struct {
@@ -16,7 +17,7 @@ func New(gateway gateway.UserGateway, idGenerator shared.IDGenerator, encoder ga
 	return &bootstrapSAImpl{gateway: gateway, idGenerator: idGenerator, encoder: encoder}
 }
 
-func (b *bootstrapSAImpl) Execute(input Input) (*Output, *shared.DomainError) {
+func (b *bootstrapSAImpl) Execute(input BootstrapSAInput) (*vo.Output, *shared.DomainError) {
 	existing := b.gateway.ExistsActiveSuperAdmin(input.Username)
 	if existing {
 		return nil, nil
@@ -30,9 +31,13 @@ func (b *bootstrapSAImpl) Execute(input Input) (*Output, *shared.DomainError) {
 	if err != nil {
 		return nil, shared.InternalError(err)
 	}
-	_, domainErr := user.NewFirstSuperAdmin(id, input.Name, input.Email, input.Username, encodedPassword)
+	toSaveUser, domainErr := user.NewFirstSuperAdmin(id, input.Name, input.Email, input.Username, encodedPassword)
 	if domainErr != nil {
 		return nil, domainErr
+	}
+	_, err = b.gateway.Save(toSaveUser)
+	if err != nil {
+		return nil, shared.InternalError(err)
 	}
 	return nil, nil
 }

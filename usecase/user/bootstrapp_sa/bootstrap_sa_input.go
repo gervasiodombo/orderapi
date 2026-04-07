@@ -1,12 +1,8 @@
 package bootstrapp_sa
 
-type Input struct {
+type BootstrapSAInput struct {
 	Username string
 	Name     string
 	Email    string
 	Password string
-}
-
-type Output struct {
-	Message string
 }
