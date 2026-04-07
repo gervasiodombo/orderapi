@@ -16,7 +16,7 @@ func TestShouldReturnDomainErrorIfNameIsEmpty(t *testing.T) {
 
 	//Act
 	id, _ := shared.NewID("test-sa-id")
-	_, err := user.NewFirstSuperAdmin(id, "", "any_email", "any_password")
+	_, err := user.NewFirstSuperAdmin(id, "", "any_email", "any_username", "any_password")
 
 	//Assert
 	if err == nil {
@@ -37,7 +37,28 @@ func TestShouldReturnDomainErrorIfEmailIsEmpty(t *testing.T) {
 
 	//Atc
 	id, _ := shared.NewID("test-sa-id")
-	_, err := user.NewFirstSuperAdmin(id, "any_name", "", "any_password")
+	_, err := user.NewFirstSuperAdmin(id, "any_name", "", "any_username", "any_password")
+
+	//Assert
+	if err == nil {
+		t.Error("expected error, got none")
+	}
+	if err.Code != expectedCode {
+		t.Errorf("expected BadRequest, got %s", err.Code)
+	}
+	if err.Message != expectedMessage {
+		t.Errorf("expected %s, got %s", expectedCode, err.Message)
+	}
+}
+
+func TestShouldReturnDomainErrorIfUsernamesEmpty(t *testing.T) {
+	//Arrange
+	expectedCode := shared.BadRequest
+	expectedMessage := `The field 'username' is required in 'User'`
+
+	//Atc
+	id, _ := shared.NewID("test-sa-id")
+	_, err := user.NewFirstSuperAdmin(id, "any_name", "any_email", "", "any_password")
 
 	//Assert
 	if err == nil {
@@ -58,7 +79,7 @@ func TestShouldReturnDomainErrorIfPasswordIsEmpty(t *testing.T) {
 
 	//Atc
 	id, _ := shared.NewID("test-sa-id")
-	_, err := user.NewFirstSuperAdmin(id, "any_name", "any_email", "")
+	_, err := user.NewFirstSuperAdmin(id, "any_name", "any_email", "any_username", "")
 
 	//Assert
 	if err == nil {
