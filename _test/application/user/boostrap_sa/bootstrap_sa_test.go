@@ -160,3 +160,58 @@ func TestShouldReturnErrorIfEncoderFails(t *testing.T) {
 		t.Errorf("Should return error cause: '%v'! But received : '%v'", expectedError.Cause, err.Cause)
 	}
 }
+
+func TestShouldReturnErrorIfNameEmpty(t *testing.T) {
+	//Arrange
+	username := "superAdmin"
+	userGateway := &mocks.UserGatewayMock{ExistsActiveSuperAdminParam: username}
+	idGenerator := &mocks.IDGeneratorMock{GenerateResult: "test-id"}
+	encodeParam := "str0ngP@ssword"
+	encodedPassword := "encodedPassword"
+	encoder := &mocks.EncoderGatewayMock{EncodeResult: encodedPassword}
+	expectedError := shared.RequiredField("User", "name")
+
+	usecase := bootstrapp_sa.New(userGateway, idGenerator, encoder)
+	input := bootstrapp_sa.Input{
+		Username: username,
+		Name:     "",
+		Email:    "sa@system.com",
+		Password: encodeParam,
+	}
+
+	//Act
+	output, err := usecase.Execute(input)
+
+	//Assert
+	if err == nil {
+		t.Errorf("should  return an error")
+	}
+
+	if output != nil {
+		t.Errorf("output should be nil")
+	}
+
+	if userGateway.ExistsActiveSuperAdminResult {
+		t.Error("ExistsActiveSuperAdmin should return false")
+	}
+
+	if !userGateway.ExistsActiveSuperAdminCalled {
+		t.Error("ExistsActiveSuperAdmin should have been called")
+	}
+
+	if !idGenerator.GenerateCalled {
+		t.Error("Generate should have been called")
+	}
+
+	if !encoder.EncodeCalled {
+		t.Error("Encoder should have been called")
+	}
+
+	if err.Code != expectedError.Code {
+		t.Errorf("Should return error code: %v", expectedError.Code)
+	}
+
+	if err.Message != expectedError.Message {
+		t.Errorf("Should return error message: %v", expectedError.Message)
+	}
+}
