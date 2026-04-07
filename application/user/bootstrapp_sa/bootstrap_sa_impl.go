@@ -1,6 +1,7 @@
 package bootstrapp_sa
 
 import (
+	"github.com/oderapi/domain/entity/user"
 	"github.com/oderapi/domain/gateway"
 	"github.com/oderapi/domain/shared"
 )
@@ -21,13 +22,17 @@ func (b *bootstrapSAImpl) Execute(input Input) (*Output, *shared.DomainError) {
 		return nil, nil
 	}
 	valueId := b.idGenerator.Generate()
-	_, err := shared.NewID(valueId)
+	id, err := shared.NewID(valueId)
 	if err != nil {
 		return nil, shared.InternalError(err)
 	}
-	_, err = b.encoder.Encode(input.Password)
+	encodedPassword, err := b.encoder.Encode(input.Password)
 	if err != nil {
 		return nil, shared.InternalError(err)
+	}
+	_, domainErr := user.NewFirstSuperAdmin(id, input.Name, input.Email, input.Username, encodedPassword)
+	if domainErr != nil {
+		return nil, domainErr
 	}
 	return nil, nil
 }
