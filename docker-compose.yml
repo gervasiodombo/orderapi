@@ -1,0 +1,13 @@
+services:
+  orderapidb-db:
+    image: postgres:18.3-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: orderapidb
+    ports:
+      - 5432:5432
+    volumes:
+      - ./db/orderapidb:/var/lib/postgresql
+volumes:
+  orderapidb_data:
