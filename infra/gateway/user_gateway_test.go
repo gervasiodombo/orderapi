@@ -50,3 +50,17 @@ func TestShouldReturnErrorIfSaveFails(t *testing.T) {
 	//Assert
 	assert.NotNil(t, err)
 }
+
+func TestShouldReturnErrorIfSaveSucceeds(t *testing.T) {
+	//Arrange
+	userRepository := &mocks.UserRepositoryMock{}
+	userGateway := gateway.NewUserGatewayImpl(userRepository)
+	id, _ := shared.NewID("test-sa-id")
+	us := user.With(id, "any_name", "any_email", "any_username", "any_passq", user.ACTIVE, []user.Role{user.SUPER_ADMIN})
+
+	//Act
+	err := userGateway.Save(us)
+
+	//Assert
+	assert.Nil(t, err)
+}
