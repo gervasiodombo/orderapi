@@ -16,3 +16,14 @@ func TestShouldReturnErrorIfBcryptFails(t *testing.T) {
 	assert.NotNil(t, err, "expected no error, got none")
 	assert.Contains(t, err.Error(), "failed to hash password")
 }
+
+func TestShouldReturnHashedValue(t *testing.T) {
+	//Arrange
+	encoder := gateway.NewEncoderGateway()
+	//Act
+	hashed, err := encoder.Encode("secret")
+	//Assert
+	assert.Nil(t, err)
+	assert.NotEmpty(t, hashed)
+	assert.NotEqual(t, "secret", hashed)
+}
