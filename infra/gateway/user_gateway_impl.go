@@ -6,17 +6,17 @@ import (
 )
 
 type UserGatewayImpl struct {
-	repository repository.UserRepositoryImpl
+	userRepository repository.UserRepository
 }
 
-func NewUserGatewayImpl() *UserGatewayImpl {
-	return &UserGatewayImpl{}
+func NewUserGatewayImpl(userRepository repository.UserRepository) *UserGatewayImpl {
+	return &UserGatewayImpl{userRepository: userRepository}
 }
 
 func (ug *UserGatewayImpl) ExistsActiveSuperAdmin() (bool, error) {
-	return ug.repository.ExistsActiveSuperAdmin()
+	return ug.userRepository.ExistsActiveSuperAdmin()
 }
 
 func (ug *UserGatewayImpl) Save(user user.User) error {
-	return ug.repository.Save(user)
+	return ug.userRepository.Save(user)
 }
