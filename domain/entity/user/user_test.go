@@ -7,6 +7,7 @@ import (
 	"github.com/oderapi/domain/shared"
 )
 
+// NewFirstSuperAdmin
 func TestShouldReturnDomainErrorIfNameIsEmpty(t *testing.T) {
 	//Arrange
 	expectedCode := shared.BadRequest
@@ -100,6 +101,44 @@ func TestShouldReturnUserWithCorrectValues(t *testing.T) {
 	if err != nil {
 		t.Error("should not return error")
 	}
+
+	if user.Id().Value() != id.Value() {
+		t.Errorf("expected : %s, but got %s", id, user.Id())
+	}
+
+	if user.Name() != "any_name" {
+		t.Errorf("expected : %s, but got %s", "any_name", user.Name())
+	}
+
+	if user.Email() != "any_email" {
+		t.Errorf("expected : %s, but got %s", "any_email", user.Email())
+	}
+
+	if user.Username() != "any_username" {
+		t.Errorf("expected : %s, but got %s", "any_username", user.Username())
+	}
+
+	if user.Password() != "any_passq" {
+		t.Errorf("expected : %s, but got %s", "any_passq", user.Password())
+	}
+
+	if user.Status().String() != "ACTIVE" {
+		t.Errorf("expected : %s, but got %s", "ACTIVE", user.Status().String())
+	}
+
+	if len(user.Roles()) != 1 {
+		t.Errorf("expected : %d, but got %d", 1, len(user.Roles()))
+	}
+
+	if user.Roles()[0].String() != "SUPER_ADMIN" {
+		t.Errorf("expected : %s, but got %s", "SUPER_ADMIN", user.Roles()[0].String())
+	}
+}
+
+// With
+func TestShouldReturnUserWithIncorrectValues(t *testing.T) {
+	id, _ := shared.NewID("test-sa-id")
+	user := user.With(id, "any_name", "any_email", "any_username", "any_passq", user.ACTIVE, []user.Role{user.SUPER_ADMIN})
 
 	if user.Id().Value() != id.Value() {
 		t.Errorf("expected : %s, but got %s", id, user.Id())
