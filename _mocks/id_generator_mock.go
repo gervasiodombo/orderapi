@@ -1,4 +1,4 @@
-package mocks
+package _mocks
 
 type IDGeneratorMock struct {
 	GenerateResult string

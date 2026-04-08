@@ -1,4 +1,4 @@
-package mocks
+package _mocks
 
 type EncoderGatewayMock struct {
 	EncodeResult string

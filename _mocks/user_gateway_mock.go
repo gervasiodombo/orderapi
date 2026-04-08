@@ -1,4 +1,4 @@
-package mocks
+package _mocks
 
 import (
 	"github.com/oderapi/domain/entity/user"
