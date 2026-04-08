@@ -24,11 +24,3 @@ func NewID(value string) (ID, error) {
 func (id ID) Value() string {
 	return id.value
 }
-
-func (id ID) Equals(other ID) bool {
-	return id.value == other.value
-}
-
-func (id ID) String() string {
-	return id.value
-}
