@@ -5,7 +5,6 @@ Feature: Super Admin Bootstrapping
 
   Background:
     Given the following environment variables are set:
-      | SA_NAME     | System Admin  |
       | SA_EMAIL    | sa@system.com |
       | SA_USERNAME | super_admin   |
       | SA_PASSWORD | strOnP@ssword |
