@@ -6,6 +6,7 @@ import (
 	"github.com/oderapi/domain/entity/user"
 	"github.com/oderapi/domain/shared"
 	"github.com/oderapi/infra/mapper"
+	"github.com/oderapi/infra/persistence/model"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,17 +14,45 @@ func TestShouldReturnUserModelWithCorrectValues(t *testing.T) {
 	//Arrange
 	id, _ := shared.NewID("test-id")
 	roles := []user.Role{user.SUPER_ADMIN}
-	us := user.With(id, "any_name", "any_email", "any_username", "any_passq", user.ACTIVE, roles)
+	userDomain := user.With(id, "any_name", "any_email", "any_username", "any_passq", user.ACTIVE, roles)
 
 	//Act
-	userModel := mapper.ToModel(us)
+	userModel := mapper.ToModel(userDomain)
 
 	//Assert
 	assert.Equal(t, id.Value(), userModel.ID)
-	assert.Equal(t, userModel.Name, userModel.Name)
-	assert.Equal(t, userModel.Email, userModel.Email)
-	assert.Equal(t, userModel.Username, userModel.Username)
-	assert.Equal(t, userModel.Password, userModel.Password)
-	assert.Equal(t, len(userModel.Roles), len(userModel.Roles))
-	assert.Equal(t, userModel.Roles[0], userModel.Roles[0])
+	assert.Equal(t, userDomain.Name(), userModel.Name)
+	assert.Equal(t, userDomain.Email(), userModel.Email)
+	assert.Equal(t, userDomain.Username(), userModel.Username)
+	assert.Equal(t, userDomain.Password(), userModel.Password)
+	assert.Equal(t, len(userDomain.Roles()), len(userModel.Roles))
+	assert.Equal(t, userDomain.Roles()[0].String(), userModel.Roles[0].Role)
+}
+
+func TestShouldReturnUserDomainWithCorrectValues(t *testing.T) {
+	//Arrange
+	id, _ := shared.NewID("test-id")
+	role := model.RoleModel{UserID: id.Value(), Role: user.SUPER_ADMIN.String()}
+	roles := []model.RoleModel{role}
+	userModel := model.UserModel{
+		ID:       "test-id",
+		Name:     "any_name",
+		Email:    "any_email",
+		Username: "any_username",
+		Password: "any_passq",
+		Status:   user.ACTIVE.String(),
+		Roles:    roles,
+	}
+
+	//Act
+	userDomain, _ := mapper.ToDomain(userModel)
+
+	//Assert
+	assert.Equal(t, id.Value(), userModel.ID)
+	assert.Equal(t, userDomain.Name(), userModel.Name)
+	assert.Equal(t, userDomain.Email(), userModel.Email)
+	assert.Equal(t, userDomain.Username(), userModel.Username)
+	assert.Equal(t, userDomain.Password(), userModel.Password)
+	assert.Equal(t, len(userDomain.Roles()), len(userModel.Roles))
+	assert.Equal(t, userDomain.Roles()[0].String(), userModel.Roles[0].Role)
 }
