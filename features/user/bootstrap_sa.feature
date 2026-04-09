@@ -21,3 +21,9 @@ Feature: Super Admin Bootstrapping
     When the system starts up
     Then the system should return error message "SA_EMAIL environment variable not set"
     And the system should not start
+
+  Scenario: System returns error if SA_USERNAME env var is not set
+    And the SA_USERNAME environment variable is not set
+    When the system starts up
+    Then the system should return error message "SA_USERNAME environment variable not set"
+    And the system should not start
