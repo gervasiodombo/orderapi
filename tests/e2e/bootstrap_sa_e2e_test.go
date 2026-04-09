@@ -3,6 +3,7 @@ package e2e_test
 import (
 	"testing"
 
+	"github.com/oderapi/src/main/factory/usecase"
 	"github.com/oderapi/src/usecase/user/bootstrapp_sa"
 	"github.com/oderapi/tests/mocks"
 	"github.com/stretchr/testify/assert"
@@ -12,11 +13,8 @@ import (
 func TestE2EShouldFailWhenEnvsMissing(t *testing.T) {
 	db, cleanup := mocks.StartPostgres(t)
 	defer cleanup()
-	input := bootstrapp_sa.BootstrapSAInput{
-		Name:     "System Admin",
-		Email:    "sa@system.com",
-		Username: "superadmin",
-	}
+	input := usecase.MakeBootstrapSaInput()
+	input.Password = ""
 	_, err := mocks.RunOnStart(t, db, input)
 	assert.Error(t, err)
 }
