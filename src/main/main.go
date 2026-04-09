@@ -18,7 +18,11 @@ func main() {
 			ctx.Logger.Fatal(err)
 			return err
 		}
-		input := usecase.MakeBootstrapSaInput()
+		input, err := usecase.MakeBootstrapSaInput()
+		if err != nil {
+			ctx.Logger.Fatal(err)
+			return err
+		}
 		message, err := factory.MakeRunBootstrapSa(input, bootstrapSa)
 		if err != nil {
 			ctx.Logger.Fatal(err)
