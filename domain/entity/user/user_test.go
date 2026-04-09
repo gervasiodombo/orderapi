@@ -95,80 +95,80 @@ func TestShouldReturnDomainErrorIfPasswordIsEmpty(t *testing.T) {
 func TestShouldReturnUserWithCorrectValues(t *testing.T) {
 	//Atc 	//Arrange
 	id, _ := shared.NewID("test-sa-id")
-	user, err := user.NewFirstSuperAdmin(id, "any_name", "any_email", "any_username", "any_passq")
+	us, err := user.NewFirstSuperAdmin(id, "any_name", "any_email", "any_username", "any_passq")
 
 	//Assert
 	if err != nil {
 		t.Error("should not return error")
 	}
 
-	if user.Id().Value() != id.Value() {
-		t.Errorf("expected : %s, but got %s", id, user.Id())
+	if us.Id().Value() != id.Value() {
+		t.Errorf("expected : %s, but got %s", id, us.Id())
 	}
 
-	if user.Name() != "any_name" {
-		t.Errorf("expected : %s, but got %s", "any_name", user.Name())
+	if us.Name() != "any_name" {
+		t.Errorf("expected : %s, but got %s", "any_name", us.Name())
 	}
 
-	if user.Email() != "any_email" {
-		t.Errorf("expected : %s, but got %s", "any_email", user.Email())
+	if us.Email() != "any_email" {
+		t.Errorf("expected : %s, but got %s", "any_email", us.Email())
 	}
 
-	if user.Username() != "any_username" {
-		t.Errorf("expected : %s, but got %s", "any_username", user.Username())
+	if us.Username() != "any_username" {
+		t.Errorf("expected : %s, but got %s", "any_username", us.Username())
 	}
 
-	if user.Password() != "any_passq" {
-		t.Errorf("expected : %s, but got %s", "any_passq", user.Password())
+	if us.Password() != "any_passq" {
+		t.Errorf("expected : %s, but got %s", "any_passq", us.Password())
 	}
 
-	if user.Status().String() != "ACTIVE" {
-		t.Errorf("expected : %s, but got %s", "ACTIVE", user.Status().String())
+	if us.Status().String() != "ACTIVE" {
+		t.Errorf("expected : %s, but got %s", "ACTIVE", us.Status().String())
 	}
 
-	if len(user.Roles()) != 1 {
-		t.Errorf("expected : %d, but got %d", 1, len(user.Roles()))
+	if len(us.Roles()) != 1 {
+		t.Errorf("expected : %d, but got %d", 1, len(us.Roles()))
 	}
 
-	if user.Roles()[0].String() != "SUPER_ADMIN" {
-		t.Errorf("expected : %s, but got %s", "SUPER_ADMIN", user.Roles()[0].String())
+	if us.Roles()[0].String() != "SUPER_ADMIN" {
+		t.Errorf("expected : %s, but got %s", "SUPER_ADMIN", us.Roles()[0].String())
 	}
 }
 
 // With
 func TestShouldReturnUserWithIncorrectValues(t *testing.T) {
 	id, _ := shared.NewID("test-sa-id")
-	user := user.With(id, "any_name", "any_email", "any_username", "any_passq", user.ACTIVE, []user.Role{user.SUPER_ADMIN})
+	us := user.With(id, "any_name", "any_email", "any_username", "any_passq", user.ACTIVE, []user.Role{user.SUPER_ADMIN})
 
-	if user.Id().Value() != id.Value() {
-		t.Errorf("expected : %s, but got %s", id, user.Id())
+	if us.Id().Value() != id.Value() {
+		t.Errorf("expected : %s, but got %s", id, us.Id())
 	}
 
-	if user.Name() != "any_name" {
-		t.Errorf("expected : %s, but got %s", "any_name", user.Name())
+	if us.Name() != "any_name" {
+		t.Errorf("expected : %s, but got %s", "any_name", us.Name())
 	}
 
-	if user.Email() != "any_email" {
-		t.Errorf("expected : %s, but got %s", "any_email", user.Email())
+	if us.Email() != "any_email" {
+		t.Errorf("expected : %s, but got %s", "any_email", us.Email())
 	}
 
-	if user.Username() != "any_username" {
-		t.Errorf("expected : %s, but got %s", "any_username", user.Username())
+	if us.Username() != "any_username" {
+		t.Errorf("expected : %s, but got %s", "any_username", us.Username())
 	}
 
-	if user.Password() != "any_passq" {
-		t.Errorf("expected : %s, but got %s", "any_passq", user.Password())
+	if us.Password() != "any_passq" {
+		t.Errorf("expected : %s, but got %s", "any_passq", us.Password())
 	}
 
-	if user.Status().String() != "ACTIVE" {
-		t.Errorf("expected : %s, but got %s", "ACTIVE", user.Status().String())
+	if us.Status().String() != "ACTIVE" {
+		t.Errorf("expected : %s, but got %s", "ACTIVE", us.Status().String())
 	}
 
-	if len(user.Roles()) != 1 {
-		t.Errorf("expected : %d, but got %d", 1, len(user.Roles()))
+	if len(us.Roles()) != 1 {
+		t.Errorf("expected : %d, but got %d", 1, len(us.Roles()))
 	}
 
-	if user.Roles()[0].String() != "SUPER_ADMIN" {
-		t.Errorf("expected : %s, but got %s", "SUPER_ADMIN", user.Roles()[0].String())
+	if us.Roles()[0].String() != "SUPER_ADMIN" {
+		t.Errorf("expected : %s, but got %s", "SUPER_ADMIN", us.Roles()[0].String())
 	}
 }
