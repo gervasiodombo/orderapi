@@ -73,4 +73,20 @@ func TestShouldReturnErrorIfSaveFails(t *testing.T) {
 
 	//Assert
 	assert.NotNil(t, err)
+	assert.Contains(t, err.Error(), "failed to save user")
+}
+
+func TestShouldReturnNilIfSaveSucceeds(t *testing.T) {
+	//Arrange
+	db := newTestDb(t)
+	userRepository := repository.NewUserRepositoryImpl(db)
+	id, _ := shared.NewID("test-sa-id")
+	roles := []user.Role{user.SUPER_ADMIN}
+	us := user.With(id, "any_name", "any_email", "any_username", "any_passq", user.ACTIVE, roles)
+
+	//Act
+	err := userRepository.Save(us)
+
+	//Assert
+	assert.Nil(t, err)
 }
