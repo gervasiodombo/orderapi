@@ -8,6 +8,6 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - ./db/orderapidb:/var/lib/postgresql
+      - /db/orderapidb:/var/lib/postgresql
 volumes:
   orderapidb_data:
