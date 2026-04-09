@@ -2,10 +2,9 @@ package mocks
 
 import (
 	"context"
-	"testing"
+	"fmt"
 	"time"
 
-	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"
 	tcpostgres "github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
@@ -13,8 +12,19 @@ import (
 	"gorm.io/gorm"
 )
 
-func StartPostgres(t *testing.T) (*gorm.DB, func()) {
-	t.Helper()
+type TestDatabase struct {
+	DB      *gorm.DB
+	cleanup func()
+}
+
+func (td *TestDatabase) Cleanup() {
+	td.cleanup()
+}
+
+func StartPostgres(t interface {
+	Helper()
+	Fatal(...interface{})
+}) (*TestDatabase, error) {
 	ctx := context.Background()
 
 	container, err := tcpostgres.Run(ctx,
@@ -28,18 +38,24 @@ func StartPostgres(t *testing.T) (*gorm.DB, func()) {
 				WithStartupTimeout(30*time.Second),
 		),
 	)
-
-	require.NoError(t, err)
-
-	connStr, err := container.ConnectionString(ctx, "sslmode=disable")
-	require.NoError(t, err)
-
-	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
-	require.NoError(t, err)
-
-	cleanup := func() {
-		container.Terminate(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to start postgres container: %w", err)
 	}
 
-	return db, cleanup
+	connStr, err := container.ConnectionString(ctx, "sslmode=disable")
+	if err != nil {
+		return nil, fmt.Errorf("failed to get connection string: %w", err)
+	}
+
+	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to open database: %w", err)
+	}
+
+	return &TestDatabase{
+		DB: db,
+		cleanup: func() {
+			container.Terminate(ctx)
+		},
+	}, nil
 }
