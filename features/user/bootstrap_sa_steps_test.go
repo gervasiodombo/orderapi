@@ -53,7 +53,7 @@ func (s *saBootstrapContext) theFollowingEnvironmentVariablesAreSet(table *godog
 }
 
 func (s *saBootstrapContext) theSANameEnvironmentVariableIsNotSet() error {
-	//os.Unsetenv("SA_NAME")
+	os.Unsetenv("SA_NAME")
 	return nil
 }
 
