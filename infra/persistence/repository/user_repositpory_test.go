@@ -8,6 +8,23 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestShouldReturnErrorIfUserDoesNotExistOnExistSuperAdminFails(t *testing.T) {
+	//Arrange
+	db := newTestDb(t)
+	sqlDB, _ := db.DB()
+	sqlDB.Close()
+
+	userRepository := repository.NewUserRepositoryImpl(db)
+
+	//Act
+	exists, err := userRepository.ExistsActiveSuperAdmin()
+
+	//Assert
+	assert.NotNil(t, err)
+	assert.False(t, exists)
+	assert.Contains(t, err.Error(), "failed to check active super admin")
+}
+
 func TestShouldReturnFalseIfUserDoesNotExistOnExistSuperAdmin(t *testing.T) {
 	//Arrange
 	db := newTestDb(t)
