@@ -7,23 +7,24 @@ import (
 	"github.com/oderapi/domain/vo"
 )
 
-type bootstrapSAImpl struct {
+type BootstrapSAImpl struct {
 	idGenerator shared.IDGenerator
 	gateway     gateway.UserGateway
 	encoder     gateway.EncoderGateway
 }
 
-func New(gateway gateway.UserGateway, idGenerator shared.IDGenerator, encoder gateway.EncoderGateway) BootstrapSA {
-	return &bootstrapSAImpl{gateway: gateway, idGenerator: idGenerator, encoder: encoder}
+func NewBootstrapSuperAdmin(gateway gateway.UserGateway, idGenerator shared.IDGenerator, encoder gateway.EncoderGateway) *BootstrapSAImpl {
+	return &BootstrapSAImpl{gateway: gateway, idGenerator: idGenerator, encoder: encoder}
 }
 
-func (b *bootstrapSAImpl) Execute(input BootstrapSAInput) (*vo.Output, *shared.DomainError) {
+func (b *BootstrapSAImpl) Execute(input BootstrapSAInput) (*vo.Output, *shared.DomainError) {
 	existing, err := b.gateway.ExistsActiveSuperAdmin()
 	if err != nil {
 		return nil, shared.InternalError(err)
 	}
+	output := &vo.Output{"Super Admin successfully already created"}
 	if existing {
-		return nil, nil
+		return output, nil
 	}
 	valueId := b.idGenerator.Generate()
 	id, err := shared.NewID(valueId)
@@ -42,6 +43,6 @@ func (b *bootstrapSAImpl) Execute(input BootstrapSAInput) (*vo.Output, *shared.D
 	if err != nil {
 		return nil, shared.InternalError(err)
 	}
-	output := &vo.Output{"Super Admin successfully created"}
+	output = &vo.Output{"Super Admin successfully created"}
 	return output, nil
 }

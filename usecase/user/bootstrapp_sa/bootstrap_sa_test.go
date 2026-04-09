@@ -1,10 +1,10 @@
-package boostrap_sa_test
+package bootstrapp_sa_test
 
 import (
 	"errors"
 	"testing"
 
-	"github.com/oderapi/_test/application/user/boostrap_sa/mocks"
+	mocks "github.com/oderapi/_mocks"
 	"github.com/oderapi/domain/shared"
 	"github.com/oderapi/usecase/user/bootstrapp_sa"
 )
@@ -17,7 +17,7 @@ func TestShouldReturnErrorIfExistsVerificationFails(t *testing.T) {
 	idGenerator := &mocks.IDGeneratorMock{}
 	encoder := &mocks.EncoderGatewayMock{}
 
-	usecase := bootstrapp_sa.New(userGateway, idGenerator, encoder)
+	usecase := bootstrapp_sa.NewBootstrapSuperAdmin(userGateway, idGenerator, encoder)
 	input := bootstrapp_sa.BootstrapSAInput{
 		Username: username,
 		Name:     "System Admin",
@@ -50,14 +50,15 @@ func TestShouldReturnErrorIfExistsVerificationFails(t *testing.T) {
 	}
 }
 
-func TestShouldReturnNilIfSuperAdminAlreadyExists(t *testing.T) {
+func TestShouldReturnOutPutMessageIFfSuperAdminAlreadyExists(t *testing.T) {
 	//Arrange
 	username := "superAdmin"
 	userGateway := &mocks.UserGatewayMock{ExistsActiveSuperAdminResult: true}
 	idGenerator := &mocks.IDGeneratorMock{}
 	encoder := &mocks.EncoderGatewayMock{}
+	expectedOutput := "Super Admin successfully already created"
 
-	usecase := bootstrapp_sa.New(userGateway, idGenerator, encoder)
+	usecase := bootstrapp_sa.NewBootstrapSuperAdmin(userGateway, idGenerator, encoder)
 	input := bootstrapp_sa.BootstrapSAInput{
 		Username: username,
 		Name:     "System Admin",
@@ -73,8 +74,8 @@ func TestShouldReturnNilIfSuperAdminAlreadyExists(t *testing.T) {
 		t.Errorf("should not return an error")
 	}
 
-	if output != nil {
-		t.Errorf("output should be nil")
+	if output == nil {
+		t.Errorf("output should not be nil")
 	}
 
 	if !userGateway.ExistsActiveSuperAdminResult {
@@ -83,6 +84,10 @@ func TestShouldReturnNilIfSuperAdminAlreadyExists(t *testing.T) {
 
 	if !userGateway.ExistsActiveSuperAdminCalled {
 		t.Error("ExistsActiveSuperAdmin should have been called")
+	}
+
+	if output.Message != expectedOutput {
+		t.Errorf("Should return error message: %v", output.Message)
 	}
 
 }
@@ -94,7 +99,7 @@ func TestShouldReturnErrorIfIdGeneratorFails(t *testing.T) {
 	userGateway := &mocks.UserGatewayMock{}
 	idGenerator := &mocks.IDGeneratorMock{}
 	encoder := &mocks.EncoderGatewayMock{}
-	usecase := bootstrapp_sa.New(userGateway, idGenerator, encoder)
+	usecase := bootstrapp_sa.NewBootstrapSuperAdmin(userGateway, idGenerator, encoder)
 	input := bootstrapp_sa.BootstrapSAInput{
 		Username: username,
 		Name:     "System Admin",
@@ -152,7 +157,7 @@ func TestShouldReturnErrorIfEncoderFails(t *testing.T) {
 		EncodeErr:   encodeErr,
 	}
 
-	usecase := bootstrapp_sa.New(userGateway, idGenerator, encoder)
+	usecase := bootstrapp_sa.NewBootstrapSuperAdmin(userGateway, idGenerator, encoder)
 	input := bootstrapp_sa.BootstrapSAInput{
 		Username: username,
 		Name:     "System Admin",
@@ -211,7 +216,7 @@ func TestShouldReturnErrorIfNameEmpty(t *testing.T) {
 	encoder := &mocks.EncoderGatewayMock{EncodeResult: encodedPassword}
 	expectedError := shared.RequiredField("User", "name")
 
-	usecase := bootstrapp_sa.New(userGateway, idGenerator, encoder)
+	usecase := bootstrapp_sa.NewBootstrapSuperAdmin(userGateway, idGenerator, encoder)
 	input := bootstrapp_sa.BootstrapSAInput{
 		Username: username,
 		Name:     "",
@@ -266,7 +271,7 @@ func TestShouldReturnErrorIfEmailEmpty(t *testing.T) {
 	encoder := &mocks.EncoderGatewayMock{EncodeResult: encodedPassword}
 	expectedError := shared.RequiredField("User", "email")
 
-	usecase := bootstrapp_sa.New(userGateway, idGenerator, encoder)
+	usecase := bootstrapp_sa.NewBootstrapSuperAdmin(userGateway, idGenerator, encoder)
 	input := bootstrapp_sa.BootstrapSAInput{
 		Username: username,
 		Name:     "System Admin",
@@ -321,7 +326,7 @@ func TestShouldReturnErrorIfUsernameEmpty(t *testing.T) {
 	encoder := &mocks.EncoderGatewayMock{EncodeResult: encodedPassword}
 	expectedError := shared.RequiredField("User", "username")
 
-	usecase := bootstrapp_sa.New(userGateway, idGenerator, encoder)
+	usecase := bootstrapp_sa.NewBootstrapSuperAdmin(userGateway, idGenerator, encoder)
 	input := bootstrapp_sa.BootstrapSAInput{
 		Username: username,
 		Name:     "System Admin",
@@ -376,7 +381,7 @@ func TestShouldReturnErrorIfPasswordIsEmpty(t *testing.T) {
 	encoder := &mocks.EncoderGatewayMock{EncodeResult: encodedPassword}
 	expectedError := shared.RequiredField("User", "username")
 
-	usecase := bootstrapp_sa.New(userGateway, idGenerator, encoder)
+	usecase := bootstrapp_sa.NewBootstrapSuperAdmin(userGateway, idGenerator, encoder)
 	input := bootstrapp_sa.BootstrapSAInput{
 		Username: username,
 		Name:     "System Admin",
@@ -433,7 +438,7 @@ func TestShouldReturnErrorIfSaveFails(t *testing.T) {
 	encodedPassword := "encodedPassword"
 	encoder := &mocks.EncoderGatewayMock{EncodeResult: encodedPassword}
 
-	usecase := bootstrapp_sa.New(userGateway, idGenerator, encoder)
+	usecase := bootstrapp_sa.NewBootstrapSuperAdmin(userGateway, idGenerator, encoder)
 	input := bootstrapp_sa.BootstrapSAInput{
 		Username: username,
 		Name:     "System Admin",
@@ -499,9 +504,9 @@ func TestShouldSaveSa(t *testing.T) {
 	encodeParam := "str0ngP@ssword"
 	encodedPassword := "encodedPassword"
 	encoder := &mocks.EncoderGatewayMock{EncodeResult: encodedPassword}
-	expectedMesage := "Super Admin successfully created"
+	expectedOutput := "Super Admin successfully created"
 
-	usecase := bootstrapp_sa.New(userGateway, idGenerator, encoder)
+	usecase := bootstrapp_sa.NewBootstrapSuperAdmin(userGateway, idGenerator, encoder)
 	input := bootstrapp_sa.BootstrapSAInput{
 		Username: username,
 		Name:     "System Admin",
@@ -549,7 +554,7 @@ func TestShouldSaveSa(t *testing.T) {
 		t.Error("Save should have been called")
 	}
 
-	if output.Message != expectedMesage {
-		t.Errorf("Should return error code: %v", err.Message)
+	if output.Message != expectedOutput {
+		t.Errorf("Should return error code: %v", output.Message)
 	}
 }
