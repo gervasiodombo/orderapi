@@ -1,6 +1,7 @@
 package mapper_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/oderapi/domain/entity/user"
@@ -27,6 +28,27 @@ func TestShouldReturnUserModelWithCorrectValues(t *testing.T) {
 	assert.Equal(t, userDomain.Password(), userModel.Password)
 	assert.Equal(t, len(userDomain.Roles()), len(userModel.Roles))
 	assert.Equal(t, userDomain.Roles()[0].String(), userModel.Roles[0].Role)
+}
+
+func TestShouldReturnErrorIfIdIsInvalidOnToDomain(t *testing.T) {
+	//Arrange
+	role := model.RoleModel{Role: user.SUPER_ADMIN.String()}
+	roles := []model.RoleModel{role}
+	userModel := model.UserModel{
+		Name:     "any_name",
+		Email:    "any_email",
+		Username: "any_username",
+		Password: "any_passq",
+		Status:   user.ACTIVE.String(),
+		Roles:    roles,
+	}
+
+	//Act
+	_, err := mapper.ToDomain(userModel)
+
+	//Assert
+	assert.NotNil(t, err)
+	assert.Contains(t, fmt.Sprint(err), "could not generate ID because value is empty")
 }
 
 func TestShouldReturnUserDomainWithCorrectValues(t *testing.T) {
