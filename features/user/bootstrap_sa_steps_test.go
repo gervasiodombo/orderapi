@@ -67,6 +67,11 @@ func (s *saBootstrapContext) theSAUsernameEnvironmentVariableIsNotSet() error {
 	return nil
 }
 
+func (s *saBootstrapContext) theSAPasswordEnvironmentVariableIsNotSet() error {
+	os.Unsetenv("SA_PASSWORD")
+	return nil
+}
+
 // ─── When ────────────────────────────────────────────────────────────────────
 
 func (s *saBootstrapContext) theSystemStartsUp() error {
@@ -124,6 +129,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^the SA_NAME environment variable is not set$`, s.theSANameEnvironmentVariableIsNotSet)
 	ctx.Step(`^the SA_EMAIL environment variable is not set$`, s.theSAEmailEnvironmentVariableIsNotSet)
 	ctx.Step(`^the SA_USERNAME environment variable is not set$`, s.theSAUsernameEnvironmentVariableIsNotSet)
+	ctx.Step(`^the SA_PASSWORD environment variable is not set$`, s.theSAPasswordEnvironmentVariableIsNotSet)
 
 	// When
 	ctx.Step(`^the system starts up$`, s.theSystemStartsUp)
