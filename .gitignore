@@ -1,3 +1,2 @@
-configs/.env
-db/
+configs/.env.prod
 coverage

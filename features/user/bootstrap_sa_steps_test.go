@@ -7,16 +7,46 @@ import (
 	"testing"
 
 	"github.com/cucumber/godog"
+	config "github.com/oderapi/configs"
+	"github.com/oderapi/src/infra/persistence"
+	"github.com/oderapi/src/main/factory"
+	"github.com/oderapi/src/main/factory/db"
 	"github.com/oderapi/src/main/factory/usecase"
+	"github.com/oderapi/tests/mocks"
+	"gorm.io/gorm"
 )
 
+func init() {
+	os.Setenv("APP_ENV", "test")
+	if err := config.LoadProfile(); err != nil {
+		panic(err)
+	}
+}
+
+var testDatabase *mocks.TestDatabase
+
+func TestMain(m *testing.M) {
+	var err error
+	testDatabase, err = mocks.StartPostgres(nil)
+	if err != nil {
+		panic(err)
+	}
+	defer testDatabase.Cleanup()
+	if err := persistence.RunMigrations(testDatabase.DB); err != nil {
+		panic(fmt.Sprintf("failed to run migrations: %v", err))
+	}
+	os.Exit(m.Run())
+}
+
 type saBootstrapContext struct {
-	err error
+	db      *gorm.DB
+	err     error
+	message string
 }
 
 // ─── Given ───────────────────────────────────────────────────────────────────
 func (s *saBootstrapContext) theFollowingEnvironmentVariablesAreSet(table *godog.Table) error {
-	for _, row := range table.Rows[1:] {
+	for _, row := range table.Rows {
 		os.Setenv(row.Cells[0].Value, row.Cells[1].Value)
 	}
 	return nil
@@ -30,7 +60,17 @@ func (s *saBootstrapContext) theSANameEnvironmentVariableIsNotSet() error {
 // ─── When ────────────────────────────────────────────────────────────────────
 
 func (s *saBootstrapContext) theSystemStartsUp() error {
-	_, s.err = usecase.MakeBootstrapSaInput()
+	fmt.Printf("DEBUG SA_NAME on startup: '%s'\n", os.Getenv("SA_NAME"))
+	input, err := usecase.MakeBootstrapSaInput()
+	if err != nil {
+		fmt.Printf("DEBUG error: %v\n", err)
+		s.err = err
+		return nil
+	}
+
+	postgresDb := db.MakePostgresDB()
+	bootstrapSa := usecase.MakeBootstrapSa(postgresDb)
+	s.message, s.err = factory.MakeRunBootstrapSa(input, bootstrapSa)
 	return nil
 }
 
@@ -54,12 +94,20 @@ func (s *saBootstrapContext) theSystemShouldNotStart() error {
 }
 
 func InitializeScenario(ctx *godog.ScenarioContext) {
-	s := &saBootstrapContext{}
+	s := &saBootstrapContext{
+		db: testDatabase.DB,
+	}
 	ctx.Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {
-		os.Setenv("SA_NAME", "System Admin")
-		os.Setenv("SA_EMAIL", "sa@system.com")
-		os.Setenv("SA_USERNAME", "super_admin")
-		os.Setenv("SA_PASSWORD", "strOnP@ssword")
+		s.db.Exec(`DELETE FROM "T_USER_ROLES"`)
+		s.db.Exec(`DELETE FROM "T_USERS"`)
+
+		os.Unsetenv("SA_NAME")
+		os.Unsetenv("SA_EMAIL")
+		os.Unsetenv("SA_USERNAME")
+		os.Unsetenv("SA_PASSWORD")
+
+		s.err = nil
+		s.message = ""
 		return ctx, nil
 	})
 

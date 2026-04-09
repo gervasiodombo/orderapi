@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"fmt"
 	"os"
 
 	"github.com/oderapi/src/usecase/user/bootstrapp_sa"
@@ -9,6 +10,7 @@ import (
 
 func MakeBootstrapSaInput() (bootstrapp_sa.BootstrapSAInput, error) {
 	name := os.Getenv("SA_NAME")
+	fmt.Printf("DEBUG SA_NAME value: '%s'\n", name)
 	if name == "" {
 		return bootstrapp_sa.BootstrapSAInput{}, errors.New("SA_NAME environment variable not set")
 	}
