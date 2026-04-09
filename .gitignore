@@ -1,2 +1,3 @@
 configs/.env.prod
+configs/.env.staging
 coverage
