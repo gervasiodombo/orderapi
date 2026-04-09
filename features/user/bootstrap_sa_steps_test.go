@@ -57,13 +57,16 @@ func (s *saBootstrapContext) theSANameEnvironmentVariableIsNotSet() error {
 	return nil
 }
 
+func (s *saBootstrapContext) theSAEmailEnvironmentVariableIsNotSet() error {
+	os.Unsetenv("SA_EMAIL")
+	return nil
+}
+
 // ─── When ────────────────────────────────────────────────────────────────────
 
 func (s *saBootstrapContext) theSystemStartsUp() error {
-	fmt.Printf("DEBUG SA_NAME on startup: '%s'\n", os.Getenv("SA_NAME"))
 	input, err := usecase.MakeBootstrapSaInput()
 	if err != nil {
-		fmt.Printf("DEBUG error: %v\n", err)
 		s.err = err
 		return nil
 	}
@@ -114,6 +117,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	// Given
 	ctx.Step(`^the following environment variables are set:$`, s.theFollowingEnvironmentVariablesAreSet)
 	ctx.Step(`^the SA_NAME environment variable is not set$`, s.theSANameEnvironmentVariableIsNotSet)
+	ctx.Step(`^the SA_EMAIL environment variable is not set$`, s.theSAEmailEnvironmentVariableIsNotSet)
 
 	// When
 	ctx.Step(`^the system starts up$`, s.theSystemStartsUp)
