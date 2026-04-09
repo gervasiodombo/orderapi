@@ -20,8 +20,8 @@ func NewUserRepositoryImpl(db *gorm.DB) *UserRepositoryImpl {
 func (r *UserRepositoryImpl) ExistsActiveSuperAdmin() (bool, error) {
 	var count int64
 	result := r.db.Model(&model.UserModel{}).
-		Joins("JOIN user_roles ur ON ur.user_id = users.id").
-		Where("users.status = ? AND ur.role = ?", "ACTIVE", "SUPER_ADMIN").
+		Joins(`JOIN "T_USER_ROLES" ur ON ur.user_id = "T_USERS".id`).
+		Where(`"T_USERS".status = ? AND ur.role = ?`, "ACTIVE", "SUPER_ADMIN").
 		Count(&count)
 	if result.Error != nil {
 		return false, fmt.Errorf("failed to check active super admin: %w", result.Error)
