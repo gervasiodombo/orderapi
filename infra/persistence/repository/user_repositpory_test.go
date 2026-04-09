@@ -3,11 +3,14 @@ package repository_test
 import (
 	"testing"
 
+	"github.com/oderapi/domain/entity/user"
+	"github.com/oderapi/domain/shared"
 	"github.com/oderapi/infra/persistence/model"
 	"github.com/oderapi/infra/persistence/repository"
 	"github.com/stretchr/testify/assert"
 )
 
+// ExistsActiveSuperAdmin
 func TestShouldReturnErrorIfUserDoesNotExistOnExistSuperAdminFails(t *testing.T) {
 	//Arrange
 	db := newTestDb(t)
@@ -52,4 +55,22 @@ func TestShouldReturnTrueIfUserDoesNotExistOnExistSuperAdmin(t *testing.T) {
 	//Assert
 	assert.Nil(t, err)
 	assert.True(t, exists)
+}
+
+func TestShouldReturnErrorIfSaveFails(t *testing.T) {
+	//Arrange
+	db := newTestDb(t)
+	sqlDB, _ := db.DB()
+	sqlDB.Close()
+
+	userRepository := repository.NewUserRepositoryImpl(db)
+	id, _ := shared.NewID("test-sa-id")
+	roles := []user.Role{user.SUPER_ADMIN}
+	us := user.With(id, "any_name", "any_email", "any_username", "any_passq", user.ACTIVE, roles)
+
+	//Act
+	err := userRepository.Save(us)
+
+	//Assert
+	assert.NotNil(t, err)
 }
