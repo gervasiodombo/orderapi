@@ -33,3 +33,9 @@ Feature: Super Admin Bootstrapping
     When the system starts up
     Then the system should return error message "SA_PASSWORD environment variable not set"
     And the system should not start
+
+  Scenario: System creates initial SA on first startup
+    And no active super admin in the system
+    When the system starts up
+    Then the output message should be "Super Admin successfully created"
+    And the super admin status should be "ACTIVE"
