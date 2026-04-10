@@ -8,7 +8,10 @@ import (
 
 	"github.com/cucumber/godog"
 	config "github.com/oderapi/configs"
+	"github.com/oderapi/src/domain/entity/user"
 	"github.com/oderapi/src/infra/persistence"
+	"github.com/oderapi/src/infra/persistence/model"
+	shared2 "github.com/oderapi/src/infra/shared"
 	"github.com/oderapi/src/main/factory"
 	"github.com/oderapi/src/main/factory/usecase"
 	"github.com/oderapi/tests/mocks"
@@ -83,8 +86,40 @@ func (s *saBootstrapContext) noActiveSuperAdminInTheSystem() error {
 	return nil
 }
 
-// ─── When ────────────────────────────────────────────────────────────────────
+func (s *saBootstrapContext) existsActiveSuperAdminInTheSystem() error {
+	//Insert the user here
+	id := shared2.NewIDGenerator().Generate()
+	name := os.Getenv("SA_NAME")
+	email := os.Getenv("SA_EMAIL")
+	username := os.Getenv("SA_USERNAME")
+	password := os.Getenv("SA_PASSWORD")
+	role := model.RoleModel{UserID: id, Role: user.SUPER_ADMIN.String()}
+	roles := []model.RoleModel{role}
 
+	userModel := model.UserModel{
+		ID:       id,
+		Name:     name,
+		Email:    email,
+		Username: username,
+		Password: password,
+		Status:   user.ACTIVE.String(),
+		Roles:    roles,
+	}
+
+	s.db.Create(userModel)
+
+	var count int64
+	s.db.Table(`"T_USERS"`).
+		Joins(`JOIN "T_USER_ROLES" ON "T_USER_ROLES".user_id = "T_USERS".id`).
+		Where(`"T_USER_ROLES".role = ? AND "T_USERS".status = ?`, "SUPER_ADMIN", "ACTIVE").
+		Count(&count)
+	if count == 0 {
+		return fmt.Errorf("expected  active super admin, found %d", count)
+	}
+	return nil
+}
+
+// ─── When ────────────────────────────────────────────────────────────────────
 func (s *saBootstrapContext) theSystemStartsUp() error {
 	input, err := usecase.MakeBootstrapSaInput()
 	if err != nil {
@@ -98,7 +133,6 @@ func (s *saBootstrapContext) theSystemStartsUp() error {
 }
 
 // ─── Then ────────────────────────────────────────────────────────────────────
-
 func (s *saBootstrapContext) theSystemShouldReturnErrorMessage(message string) error {
 	if s.err == nil {
 		return fmt.Errorf("expected error, got nil")
@@ -169,7 +203,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^the SA_USERNAME environment variable is not set$`, s.theSAUsernameEnvironmentVariableIsNotSet)
 	ctx.Step(`^the SA_PASSWORD environment variable is not set$`, s.theSAPasswordEnvironmentVariableIsNotSet)
 	ctx.Step(`^no active super admin in the system$`, s.noActiveSuperAdminInTheSystem)
-	ctx.Step(`^the super admin status should be "([^"]*)"$`, s.theSuperAdminStatusShouldBe)
+	ctx.Step(`^there is an active super admin in the system$`, s.existsActiveSuperAdminInTheSystem)
 
 	// When
 	ctx.Step(`^the system starts up$`, s.theSystemStartsUp)
@@ -178,6 +212,8 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^the system should return error message "([^"]*)"$`, s.theSystemShouldReturnErrorMessage)
 	ctx.Step(`^the system should not start$`, s.theSystemShouldNotStart)
 	ctx.Step(`^the output message should be "([^"]*)"$`, s.theOutputMessageShouldBeSuccessMessage)
+	ctx.Step(`^the super admin status should be "([^"]*)"$`, s.theSuperAdminStatusShouldBe)
+
 }
 
 // ─── Entrypoint ─────────────────────────────────────────────────────────
