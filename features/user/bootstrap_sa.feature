@@ -39,3 +39,9 @@ Feature: Super Admin Bootstrapping
     When the system starts up
     Then the output message should be "Super Admin successfully created"
     And the super admin status should be "ACTIVE"
+
+  Scenario: System does not create initial SA on first startup if there is a SA
+    And there is an active super admin in the system
+    When the system starts up
+    Then the output message should be "Super Admin successfully already created"
+    And the super admin status should be "ACTIVE"
